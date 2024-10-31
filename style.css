@@ -1,6 +1,6 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+    background-color: #FFE5B4; /* Fondo naranja pastel */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -9,37 +9,49 @@ body {
 }
 
 .container {
-    background: white;
+    width: 80%;
+    max-width: 800px;
+    background-color: #FFF3E0; /* Contenedor con fondo pastel claro */
     padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
 }
 
 h1 {
     text-align: center;
-    color: #333;
 }
 
-input[type="file"] {
-    display: block;
-    margin: 20px auto;
+.product-list {
+    display: flex;
+    justify-content: space-between;
+}
+
+.product {
+    width: 30%;
+    text-align: center;
+    background-color: #FFE0B2; /* Fondo de cada producto en tono pastel */
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.product img {
+    width: 100%;
+    border-radius: 8px;
+}
+
+.cart {
+    margin-top: 20px;
 }
 
 button {
-    display: block;
-    margin: 20px auto;
-    padding: 10px 20px;
-    background: #28a745;
+    background-color: #4CAF50;
     color: white;
     border: none;
+    padding: 10px;
     border-radius: 5px;
     cursor: pointer;
 }
 
 button:hover {
-    background: #218838;
-}
-
-#output {
-    margin-top: 20px;
+    background-color: #45a049;
 }
