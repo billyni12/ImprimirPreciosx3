@@ -10,7 +10,37 @@
     <link href='https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="styles.css">
 </head>
+    
 <body>
+
+    <header>
+        <!-- NAV  -->
+        <div class="nav container">
+            <a href="#" class="logo"><span>E</span>Commerce</a>
+            <!-- CART ICON  -->
+            <i class='bx bx-shopping-bag' id="cart-icon"></i>
+    
+            <!-- CART  -->
+            <div class="cart">
+                <h2 class="cart-title">Your Cart</h2>
+    
+                <!-- CONTENT  -->
+                <div class="cart-content">
+                </div>
+                
+                <!-- TOTAL   -->
+                <div class="total">
+                    <div class="total-title">Total</div>
+                    <div class="total-price">$0</div>
+                </div>
+                <!-- BUY BUTTON  -->
+                <button type="button" class="btn-buy">Buy Now</button>
+                <!-- CART CLOSE  -->
+                <i class='bx bx-x' id="cart-close"></i>
+            </div>
+        </div>
+    </header>
+    
     <div class="container">
         <h1>ManekoImport😺</h1>
         <div class="product-list" id="product-list"></div>
@@ -22,6 +52,8 @@
         </div>
     </div>
 
+
+    
     <script src="script.js"></script>
 </body>
 </html>
