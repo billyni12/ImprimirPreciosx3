@@ -54,7 +54,7 @@ function sendWhatsApp() {
         return;
     }
 
-    let message = 'Resumen de Compra:%0A';
+    let message = '%0AResumen de Compra:%0A';
     let total = 0;
 
     cart.forEach(item => {
