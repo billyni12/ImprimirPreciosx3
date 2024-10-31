@@ -1,90 +1,73 @@
-document.getElementById('generatePDF').addEventListener('click', () => {
-    const input = document.getElementById('csvFileInput').files[0];
-    if (input) {
-        Papa.parse(input, {
-            header: true,
-            skipEmptyLines: true,
-            complete: function(results) {
-                generatePDF(results.data);
-            }
-        });
+let cart = [];
+
+async function fetchProducts() {
+    const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQcwrizhut-mmnuFO8Z0aBpUKLVEkr9X7Dj9QAZ2jAzqyqy8PavGJukUEmGYKNkspn01Tiokw4gFcSB/pub?output=csv';
+    const response = await fetch(sheetUrl);
+    const data = await response.text();
+    const rows = data.split('\n').slice(0); // Omite la fila de encabezado
+    const productList = document.getElementById('product-list');
+
+    rows.forEach(row => {
+        const [name, price, imageUrl] = row.split(',');
+        const productDiv = document.createElement('div');
+        productDiv.classList.add('product');
+        productDiv.innerHTML = `
+            <img src="${imageUrl.trim()}" alt="${name}">
+            <h3>${name}</h3>
+            <p>S/ ${parseFloat(price).toFixed(2)}</p>
+            <button onclick="addToCart('${name}', ${parseFloat(price)})">Agregar al Carrito</button>
+        `;
+        productList.appendChild(productDiv);
+    });
+}
+
+function addToCart(productName, price) {
+    const existingProduct = cart.find(item => item.productName === productName);
+
+    if (existingProduct) {
+        existingProduct.quantity++;
+        existingProduct.totalPrice += price;
     } else {
-        alert('Por favor, selecciona un archivo CSV.');
+        cart.push({ productName, price, quantity: 1, totalPrice: price });
     }
-});
-
-function formatPrice(price) {
-    if (!price) return { integerPart: '', decimalPart: '' };
-    const formattedPrice = `S/.${parseFloat(price).toFixed(2)}`;
-    const integerPart = Math.trunc(parseFloat(price)).toString();
-    const decimalPart = (parseFloat(price).toFixed(2).split('.')[1]);
-    return { integerPart, decimalPart };
+    displayCart();
 }
 
-function generatePDF(data) {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({
-        orientation: 'landscape',
-        unit: 'mm',
-        format: [80, 70]
+function displayCart() {
+    const cartItems = document.getElementById('cart-items');
+    cartItems.innerHTML = '';
+    let total = 0;
+
+    cart.forEach(item => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `${item.productName} (x${item.quantity}) - S/ ${item.totalPrice.toFixed(2)}`;
+        cartItems.appendChild(listItem);
+        total += item.totalPrice;
     });
 
-    data.forEach((row, index) => {
-        if (index > 0) doc.addPage([80, 70]);
-
-        let yOffset = 10;  // Start position at the top for each new page
-
-        // Set font to bold for the name
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(24);
-
-        // Split the name into multiple lines if necessary
-        const nameLines = doc.splitTextToSize(row.Nombre || '', 60);
-        nameLines.forEach((line, i) => {
-            doc.text(line, 10, yOffset);
-            yOffset += 10;  // Move to the next line
-        });
-
-        // Reset font to normal for the prices
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(14);
-            yOffset -= 1;
-        // Loop through prices and adjust font size for Precio1
-        ['Px1', 'Px3', 'Px6'].forEach((precio, i) => {
-            const price = formatPrice(row[precio]);
-            if (price.integerPart) {
-                const priceYOffset = yOffset + 8 * (i + 1);
-                const label = precio + ": ";
-                doc.text(label, 10, priceYOffset);
-                const labelWidth = doc.getTextWidth(label);
-
-                // Adjust font size for Precio1
-                if (precio == 'Px1') {
-                    doc.setFontSize(35);
-                    const textWidth = doc.getTextWidth(`S/.${price.integerPart}`);
-                    const rectWidth = 2 + labelWidth + textWidth + doc.getTextWidth(`.${price.decimalPart}`);
-                    const rectHeight = 14;  // Height of the row
-                    doc.rect(8, priceYOffset -11, rectWidth, rectHeight); // Draw the border
-                    doc.text(`S/.${price.integerPart}`, 10 + labelWidth, priceYOffset);
-                    if (price.decimalPart) {
-                        const textWidth = doc.getTextWidth(`S/.${price.integerPart}`);
-                        doc.setFontSize(11);
-                        doc.text(`.${price.decimalPart}`, 10 + labelWidth + textWidth, priceYOffset-3);
-                    }
-                } else {
-                    doc.setFontSize(12);
-                    doc.text(`S/.${price.integerPart}`, 10 + labelWidth, priceYOffset);
-                    if (price.decimalPart) {
-                        const textWidth = doc.getTextWidth(`S/.${price.integerPart}`);
-                        doc.setFontSize(8);
-                        doc.text(`.${price.decimalPart}`, 10 + labelWidth + textWidth, priceYOffset-1);
-                    }
-                }
-                // Reset font size for next price
-                doc.setFontSize(12);
-            }
-        });
-    });
-
-    doc.save('ticket.pdf');
+    document.getElementById('total').textContent = `Total: S/ ${total.toFixed(2)}`;
 }
+
+function sendWhatsApp() {
+    if (cart.length === 0) {
+        alert('El carrito está vacío');
+        return;
+    }
+
+    let message = 'Resumen de Compra:%0A';
+    let total = 0;
+
+    cart.forEach(item => {
+        message += `${item.productName} (x${item.quantity}): S/ ${item.totalPrice.toFixed(2)}%0A`;
+        total += item.totalPrice;
+    });
+
+    message += `%0A**Total: S/ ${total.toFixed(2)}**`;
+
+    const phoneNumber = '51910010500';
+    const url = `https://wa.me/${phoneNumber}?text=${message}`;
+    window.open(url, '_blank');
+}
+
+// Llama a la función para obtener los productos al cargar la página
+fetchProducts();
